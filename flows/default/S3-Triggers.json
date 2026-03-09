@@ -1,0 +1,11 @@
+{
+  "flow" : {
+    "createdTimestamp" : 1773076114007,
+    "description" : "Example flow triggered by S3 file arrival",
+    "identifier" : "S3-Triggers",
+    "lastModifiedTimestamp" : 1773076114007,
+    "name" : "S3 Triggers",
+    "versionCount" : 0
+  },
+  "latest" : false
+}
