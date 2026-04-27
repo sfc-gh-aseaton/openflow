@@ -13,7 +13,7 @@ import pymssql
 HOST = "ali-sql-svr.c50usmosavrd.eu-central-1.rds.amazonaws.com"
 DATABASE = "hol"
 USER = "admin"
-PASSWORD = "5l2LOmZBLcJV8UB2i5vw"
+PASSWORD = "insert-password-here"
 # ─────────────────────────────────────────────────────────────────────────────
 
 FIRST_NAMES = [
