@@ -5,6 +5,8 @@ In this lab we will build a custom flow directly on the Openflow canvas. It is m
 
 Both APIs are on the same host (`dummyjson.com`), free, no authentication required.
 
+> 💡 Ensure you created the Network rule described in [Lab 00](Lab%2000%20-%20Initial%20Setup.md) to allow access to the dummyjson.com API we will use for the lab
+
 | API | URL |
 |-----|-----|
 | Users | `GET https://dummyjson.com/users?limit=30&select=id,firstName,lastName,email,address` |
@@ -264,4 +266,6 @@ CREATE OR REPLACE TABLE OPENFLOW.PUBLIC.USER_SPENDING (
 
 We are now ready to test our complete flow. "Run once" is useful for testing individual elements but the PublishSnowpipeStreaming needs to be run continuously to manage the more complex confirmation and commit functionality.
 
-Start all the processors apart from the first Trigger processor to "Run". Preview the target table to validate all ~30 rows reached the target. Offset tracking in Snowpipe Streaming prevents loading the same user_id more than once. You can run an end-to-end test by Truncating the target table and executing a "Run once" on the first Trigger processor
+Start all the processors apart from the first Trigger processor to "Run". Preview the target table to validate all ~30 rows reached the target.
+
+>Offset tracking in Snowpipe Streaming prevents loading the same user_id more than once. This offset token is retained for 30 days. If the same data is re-presented during this time, duplicates will not be loaded

@@ -25,16 +25,6 @@ Setup Snowflake roles, permissions and Openflow SPCS deployment
 The quickstart cheat sheet gave some examples for allowing outbound connectivity from Snowflake SPCS to data sources. For the labs you need to create these rules:
 
 ```
-CREATE OR REPLACE NETWORK RULE OPENFLOW.OPENFLOW.sharepoint_services_rule  
-  MODE = EGRESS  
-  TYPE = HOST_PORT  
-  VALUE_LIST = ('login.microsoftonline.com:443', 'login.microsoft.com:443', 'www.office.com:443','graph.microsoft.com:443', 'developer.microsoft.com:443');
-
-CREATE OR REPLACE NETWORK RULE OPENFLOW.OPENFLOW.sharepoint_site_rule  
-  MODE = EGRESS  
-  TYPE = HOST_PORT  
-  VALUE_LIST = ('*.sharepoint.com:443');
-
 CREATE OR REPLACE NETWORK RULE OPENFLOW.OPENFLOW.pg_rule  
   MODE = EGRESS  
   TYPE = HOST_PORT  
@@ -45,13 +35,18 @@ CREATE OR REPLACE NETWORK RULE OPENFLOW.OPENFLOW.json_rule
   TYPE = HOST_PORT  
   VALUE_LIST = ('dummyjson:443');
 
+CREATE OR REPLACE NETWORK RULE goog_rule
+  MODE = EGRESS
+  TYPE = HOST_PORT
+  VALUE_LIST = ('drive.google.com:443', 'www.googleapis.com:443',
+  'oauth2.googleapis.com:443', 'www.googleapis.com:443');
+
 --ATTENTION!!! When you create/replace the EAI (this counts as a drop and recreate) - Grants are lost!
 
 CREATE OR REPLACE EXTERNAL ACCESS INTEGRATION OPENFLOW_EAI  
   ALLOWED_NETWORK_RULES = ( OPENFLOW.OPENFLOW.pg_rule,  
-                            OPENFLOW.OPENFLOW.sharepoint_services_rule,  
-                            OPENFLOW.OPENFLOW.sharepoint_site_rule,  
-                            OPENFLOW.OPENFLOW.json_rule )  
+                            OPENFLOW.OPENFLOW.json_rule,  
+                            OPENFLOW.OPENFLOW.goog_rule )  
    ENABLED = TRUE;
 
 GRANT USAGE ON INTEGRATION OPENFLOW_EAI TO ROLE OPENFLOW_RUNTIME;  
