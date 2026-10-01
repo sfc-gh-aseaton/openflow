@@ -52,3 +52,21 @@ Once the connector has deploy, click the 3 dot context menu and choose Start. Af
 ![](images/img12.png)
 
 Navigate to the Connector Observability dashboard (Ingestion -> Openflow), check metrics, status and validate everything is correct. Now in class we will start populating changes to view the behaviour
+
+# Lab 01b - Manual flow (Advanced)
+
+Manually build a flow for custom database integration. This is more complicated and requires some experience (and/or exploration!)
+
+**Tips:**
+* Start on Openflow Canvas
+* Create a Processor Group and work inside it
+* Create a Parameter Context and add a Parameter to reference an asset - upload the Postgres driver jar
+* Create a DBCPConnectionPool Controller Service, configure and enable
+* You'll also need to create JsonRecordSetWriter and a StandardWebClientServiceProvider controller services (enable with default settings)
+* Create a simple flow QueryDatabaseTableRecord → PublishSnowpipeStreaming
+* Source table is tastybytes.order_header, specify your DB connection pool and record writer
+* Try a Run Once and view the results in the queue, download the JSON file to help with target table creation
+* Create the target table with all columns using the Snowsight UI loader and JSON file
+* Setup the target PublishSnowpipeStreaming processor and Run! (Run Once behaviour with this processor is undefined due to more complex interactions with the pipe)
+
+
