@@ -10,6 +10,10 @@ CREATE SECRET OPENFLOW.OPENFLOW.poland_pg18
 
 GRANT READ ON SECRET OPENFLOW.OPENFLOW.poland_pg18 TO ROLE OPENFLOW_RUNTIME;
 ```
+
+[!CAUTION]
+Also ensure you creating the Network rule described in [Lab 00](Lab%2000%20-%20Initial%20Setup.md) to allow access to the Postgres DB we will use for the lab
+
 Now download the latest Postgres JDBC driver:
 [https://jdbc.postgresql.org/download/](https://jdbc.postgresql.org/download/)
 
