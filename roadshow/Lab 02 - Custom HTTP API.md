@@ -210,16 +210,14 @@ Go Back to the Canvas.
 |----------|-------|
 | **Name** | `Write to USER_SPENDING` |
 | **Processor type** | `PublishSnowpipeStreaming` |
-| Authentication Strategy | `SNOWFLAKE_MANAGED` |
+| Authentication Strategy | `Snowflake Managed` |
+| Destination Type | `Table` |
 | Database | `OPENFLOW` |
 | Schema | `PUBLIC` |
 | Table | `USER_SPENDING` |
 | Web Client Service Provider | *(select the StandardWebClientServiceProvider you created)* |
-| Transfer Strategy | `ROWS` |
-| Channel Type | `Standard` |
-| Offset Tracking Resolution | `FLOW_FILE` |
-| Offset Token End Expression | `${user_id}` |
-| Channel Group | `SHARED` |
+| Transfer Strategy | `Rows` |
+| Channel Type | `Elastic` |
 
 **Relationships:** Set terminate for success, failure, invalid, empty
 
@@ -227,12 +225,9 @@ Go Back to the Canvas.
 
 > **About the Pipe name:** PublishSnowpipeStreaming writes through a PIPE object, not directly to a table. The pipe is auto-created by Snowflake on first use. You do NOT need to create it manually.
 
-> **About Authentication Strategy:** When set to `SNOWFLAKE_MANAGED`, the processor uses the runtime's built-in session token. No Account, User, Role, or Private Key configuration is needed.
+> **About Authentication Strategy:** When set to `Snowflake Managed`, the processor uses the runtime's built-in session token. No Account, User, Role, or Private Key configuration is needed.
 
-> **About Offset Tokens:** These track which records have been committed (for delivery guarantees). They must be **numeric**. We use `${user_id}` because it's already available as an attribute, is numeric (1-30), and is meaningful. In production you'd use a Kafka offset or sequence number.
-
-> **Reloading data after a mistake:** Because we use `user_id` as the offset token, the processor remembers which user IDs have already been committed. 
-
+> Elastic Channels are the easy-to-use approach for streaming when your application doesn't require ordered ingestion. This approach guarantees **"at-least-once"** delivery so to be fully robust your pipeline should be able to handle duplicate records. More details on Elastic changes and the alternatives can be found in the [documentation](https://docs.snowflake.com/en/user-guide/snowpipe-streaming/snowpipe-streaming-elastic-channels-overview)
 ---
 
 ### Create the target table OPENFLOW.PUBLIC.USER_SPENDING
@@ -264,8 +259,4 @@ CREATE OR REPLACE TABLE OPENFLOW.PUBLIC.USER_SPENDING (
 
 ### Executing the flow
 
-We are now ready to test our complete flow. "Run once" is useful for testing individual elements but the PublishSnowpipeStreaming needs to be run continuously to manage the more complex confirmation and commit functionality.
-
-Start all the processors apart from the first Trigger processor to "Run". Preview the target table to validate all ~30 rows reached the target.
-
->Offset tracking in Snowpipe Streaming prevents loading the same user_id more than once. This offset token is retained for 30 days. If the same data is re-presented during this time, duplicates will not be loaded
+We are now ready to test our complete flow. Start all the processors apart from the first Trigger processor to "Run". Preview the target table to validate all ~30 rows reached the target. You can experiment by running the flow several times, perhaps changing the number of users fetched in the first HTTP call

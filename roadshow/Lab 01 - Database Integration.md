@@ -70,6 +70,6 @@ Manually build a flow for custom database integration. This is more complicated 
 * Source table is tastybytes.order_header, specify your DB connection pool and record writer
 * Try a Run Once and view the results in the queue, download the JSON file to help with target table creation
 * Create the target table with all columns using the Snowsight UI loader and JSON file
-* Setup the target PublishSnowpipeStreaming processor and Run! (Run Once behaviour with this processor is undefined due to more complex interactions with the pipe)
+* Setup the target PublishSnowpipeStreaming processor with `Transfer Strategy = Rows` and `Channel Type = Elastic`
 
 
