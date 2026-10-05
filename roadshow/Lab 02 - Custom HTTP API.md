@@ -5,7 +5,7 @@ In this lab we will build a custom flow directly on the Openflow canvas. It is m
 
 Both APIs are on the same host (`dummyjson.com`), free, no authentication required.
 
-> 💡 Ensure you created the Network rule described in [Lab 00](Lab%2000%20-%20Initial%20Setup.md) to allow access to the dummyjson.com API we will use for the lab
+> 💡 Ensure you created the network rule described in [Lab 00](Lab%2000%20-%20Initial%20Setup.md) to allow access to the dummyjson.com API we will use for the lab
 
 | API | URL |
 |-----|-----|
@@ -14,19 +14,19 @@ Both APIs are on the same host (`dummyjson.com`), free, no authentication requir
 
 ## Building Technique
 
-We will use a sequential build and test process which is good for learning and also just a common development technique. We will build one step, test it, check the results are as expected and keep moving forward. 
+We will use a sequential build-and-test process, which is good for learning and is also a common development technique. We will build one step, test it, check the results are as expected and keep moving forward.
 
-All the parameters in this exercise that must be inserted or changed are listed, everything else you can just leave the default values.
+All the properties in this exercise that must be set or changed are listed; leave everything else at its default value.
 
-### Processor Group
+### Process Group
 
-Place a Processor Group on the canvas (fourth icon in the toolbar), give it a name and double click the title bar to enter
+Place a Process Group on the canvas (fourth icon in the toolbar), give it a name and double-click it to enter
 
 ---
 
 ### Processor 1: GenerateFlowFile
 
-This processor is used to create an empty flowfile which will serve as a trigger for our flow. We'll set scheduling to an hour to avoid it running constantly in case the processor is left running. For the lab, you will trigger it manually with right-click > **"Run once"**.
+This processor is used to create an empty flowfile which will serve as a trigger for our flow. We'll set the run schedule to one hour to avoid it running constantly in case the processor is left running. For the lab, you will trigger it manually with right-click > **"Run once"**.
 
 | Property | Value |
 |----------|-------|
@@ -37,7 +37,7 @@ This processor is used to create an empty flowfile which will serve as a trigger
 
 ### Processor 2: InvokeHTTP
 
-This processor invokes an HTTP GET request against the API which returns a JSON document to a flowfile
+This processor sends an HTTP GET request to the API and writes the returned JSON document to a flowfile
 
 | Property | Value |
 |----------|-------|
@@ -47,12 +47,12 @@ This processor invokes an HTTP GET request against the API which returns a JSON 
 
 **Relationships:** Set terminate for Failure, No Retry, Original, Retry
 
-**Add Connection:** Connect Step 1. `Trigger (run once)` processor -> Step 2. `Fetch Users` processor -> on attribute `success`
-(Drag and Drop from middle of the first processor to the second one)
+**Add Connection:** Connect Step 1. `Trigger` processor -> Step 2. `Fetch Users` processor -> on relationship `success`
+(drag and drop from the middle of the first processor to the second one)
 
 ![](images/img13.png)
 
-Now right-click the Trigger processor and choose Run Once from the menu. It will happen fast, to update the GUI, right click the canvas and choose Refresh. You should now see 1 flowfile queued in the success queue. This is just an empty flowfile, that we will use to trigger the whole flow.
+Now right-click the Trigger processor and choose **Run once** from the menu. It happens fast; to update the GUI, right-click the canvas and choose **Refresh**. You should now see 1 flowfile queued in the `success` queue. This is just an empty flowfile that we will use to trigger the whole flow.
 
 ---
 
@@ -67,23 +67,23 @@ This processor will split the single large JSON document in the flowfile into se
 
 **Relationships:** Set terminate for failure, original
 
-**Add Connection:** Connect Step 2. `Fetch Users` processor -> Step 3. `Split Users` processor -> on attribute `Response`
+**Add Connection:** Connect Step 2. `Fetch Users` processor -> Step 3. `Split Users` processor -> on relationship `Response`
 
-Now we have connected the next processor, it is possible to Run Once the InvokeHTTP. This will check connectivity and make sure we setup the network rule correctly. Right-click the InvokeHTTP and choose Run Once, Refresh the canvas - if there are no problems you should see 1 flowfile in the success queue.
+Now that the next processor is connected, we can **Run once** the `Fetch Users` InvokeHTTP processor. This checks connectivity and confirms we set up the network rule correctly. Right-click `Fetch Users`, choose **Run once** and refresh the canvas - if there are no problems you should see 1 flowfile in the `Response` queue.
 
 ![](images/img14.png)
 
-Right-click the queue, choose List queue and you will see a list of flowfiles for that queue. This is a useful technique for debugging and understand what is flowing through your pipeline
+Right-click the queue and choose **List queue** to see the flowfiles in that queue. This is a useful technique for debugging and understanding what is flowing through your pipeline
 
 ![](images/img15.png)
 
-If you have more than one flowfile you can see the most recent by observing the queued duration. To see more details click the 3 dots context menu, where you can View details, content or Download the file. View the contents and validate you have a JSON response from the API
+If you have more than one flowfile you can identify the most recent by its queued duration. For more detail, click the 3 dot context menu, where you can view details or content, or download the file. View the content and validate you have a JSON response from the API
 
 ---
 
 ### Processor 4: EvaluateJsonPath
 
-This processor is used to extract individual values from the JSON and write them to the flowfile attributes. To create Dynamic properties click the "+" button as shown below
+This processor extracts individual values from the JSON and writes them to flowfile attributes. To create dynamic properties click the "+" button as shown below
 
 ![](images/img16.png)
 
@@ -106,9 +106,11 @@ This processor is used to extract individual values from the JSON and write them
 
 **Relationships:** Set terminate for failure, unmatched
 
-**Add Connection:** Connect Step 3. `Split Users` processor -> Step 4. `Extract User Info` processor -> on attribute `split` 
+**Add Connection:** Connect Step 3. `Split Users` processor -> Step 4. `Extract User Info` processor -> on relationship `split`
 
-Now it's possible to "Run once" the previous processor to check it succesfully takes the JSON from a single flowfile and converts it into ~30 individual flowfiles for each user
+Now you can **Run once** the `Split Users` processor to check it successfully splits the JSON in the single flowfile into ~30 individual flowfiles, one per user. Once the next processor is connected, a **Run once** of `Extract User Info` lets you list the queue and view a flowfile's **Attributes** tab to check the extracted values:
+
+![](images/img17.png)
 
 ---
 
@@ -124,7 +126,7 @@ The `${user_id}` is NiFi Expression Language — it reads the FlowFile attribute
 
 **Relationships:** Set terminate for Original, Retry, No Retry, Failure
 
-**Add Connection:** Connect Step 4. `Extract User Info` processor -> Step 5. `Fetch Cart` processor -> on attribute `matched`
+**Add Connection:** Connect Step 4. `Extract User Info` processor -> Step 5. `Fetch Cart` processor -> on relationship `matched`
 
 ---
 
@@ -145,11 +147,11 @@ The `${user_id}` is NiFi Expression Language — it reads the FlowFile attribute
 | `total_products` | `$.carts[0].totalProducts` |
 | `total_quantity` | `$.carts[0].totalQuantity` |
 
-> The API returns a single cart in the carts array so we hard code the retrieval of carts[0]
+> The API returns a single cart in the `carts` array, so we hard-code the retrieval of `carts[0]`
 
 **Relationships:** Set terminate for failure, unmatched
 
-**Add Connection:** Connect Step 5. `Fetch Cart` processor -> Step 6. `Extract Cart Totals` processor -> on attribute `Response`
+**Add Connection:** Connect Step 5. `Fetch Cart` processor -> Step 6. `Extract Cart Totals` processor -> on relationship `Response`
 
 ---
 
@@ -167,7 +169,7 @@ The `${user_id}` is NiFi Expression Language — it reads the FlowFile attribute
 
 > The value we added above is an example of NiFi Expression Language, you can find more details with the [Apache NiFi Expression Language Guide](https://nifi.apache.org/docs/nifi-docs/html/expression-language-guide.html)
 
-**Add Connection:** Connect Step 6. `Extract Cart Totals` processor -> Step 7. `Set Timestamp` processor -> on attribute `matched`
+**Add Connection:** Connect Step 6. `Extract Cart Totals` processor -> Step 7. `Set Timestamp` processor -> on relationship `matched`
 
 ---
 
@@ -183,24 +185,24 @@ The `${user_id}` is NiFi Expression Language — it reads the FlowFile attribute
 
 **Relationships:** Set terminate for failure
 
-**Add Connection:** Connect Step 7. `Set Timestamp` processor -> Step 8. `Build Record` processor -> on attribute `success`
+**Add Connection:** Connect Step 7. `Set Timestamp` processor -> Step 8. `Build Record` processor -> on relationship `success`
 
-> **Why this step?** PublishSnowpipeStreaming reads FlowFile **content** as records (via the Record Reader). The previous steps stored data in FlowFile **attributes**. This processor converts those attributes into a flat JSON object in the FlowFile content so the Record Reader can parse it.
+> **Why this step?** PublishSnowpipeStreaming reads records from the FlowFile **content** (as JSON). The previous steps stored data in FlowFile **attributes**. This processor converts those attributes into a flat JSON object in the FlowFile content so it can be published as a row.
 
 ---
 
 ### Create Supporting Controller Service
 
-The next processor we will use, PublishSnowpipeStreaming requires a StandardWebClientServiceProvider controller service. Create and enable it now.
+The next processor we will use, PublishSnowpipeStreaming, requires a StandardWebClientServiceProvider controller service. Create and enable it now.
 
 **How to create a controller service:**
 1. Right-click on empty canvas space inside your Process Group
 2. Select **"Controller Services"**
 3. Click the **"+"** button
 4. Search for a **StandardWebClientServiceProvider**, select it, click **Add**
-5. Click the **three dots** and **Enable** it (Choose only Services from the Dropdown)
+5. Click the **three dots** and **Enable** it (in the dropdown, choose to enable only the service)
 
-Go Back to the Canvas.
+Go back to the canvas.
 
 ---
 
@@ -221,20 +223,21 @@ Go Back to the Canvas.
 
 **Relationships:** Set terminate for success, failure, invalid, empty
 
-**Add Connection:** Connect Step 8. `Build Record` processor -> Step 9. `Write to USER_SPENDING` processor -> on attribute `success`
+**Add Connection:** Connect Step 8. `Build Record` processor -> Step 9. `Write to USER_SPENDING` processor -> on relationship `success`
 
 > **About the Pipe name:** PublishSnowpipeStreaming writes through a PIPE object, not directly to a table. The pipe is auto-created by Snowflake on first use. You do NOT need to create it manually.
 
 > **About Authentication Strategy:** When set to `Snowflake Managed`, the processor uses the runtime's built-in session token. No Account, User, Role, or Private Key configuration is needed.
 
-> Elastic Channels are the easy-to-use approach for streaming when your application doesn't require ordered ingestion. This approach guarantees **"at-least-once"** delivery so to be fully robust your pipeline should be able to handle duplicate records. More details on Elastic changes and the alternatives can be found in the [documentation](https://docs.snowflake.com/en/user-guide/snowpipe-streaming/snowpipe-streaming-elastic-channels-overview)
+> Elastic Channels are the easy-to-use approach for streaming when your application doesn't require ordered ingestion. This approach guarantees **"at-least-once"** delivery, so to be fully robust your pipeline should be able to handle duplicate records. More details on Elastic Channels and the alternatives can be found in the [documentation](https://docs.snowflake.com/en/user-guide/snowpipe-streaming/snowpipe-streaming-elastic-channels-overview)
+
 ---
 
 ### Create the target table OPENFLOW.PUBLIC.USER_SPENDING
 
-In Snowflake create the target table using
+In Snowflake, create the target table:
 
-```
+```sql
 -- Depending on how you setup Openflow you may need to adjust roles below
 USE ROLE OPENFLOW_ADMIN;
 GRANT CREATE TABLE ON SCHEMA OPENFLOW.PUBLIC TO ROLE OPENFLOW_RUNTIME;
@@ -259,4 +262,4 @@ CREATE OR REPLACE TABLE OPENFLOW.PUBLIC.USER_SPENDING (
 
 ### Executing the flow
 
-We are now ready to test our complete flow. Start all the processors apart from the first Trigger processor to "Run". Preview the target table to validate all ~30 rows reached the target. You can experiment by running the flow several times, perhaps changing the number of users fetched in the first HTTP call
+We are now ready to test the complete flow. Start every processor except the first `Trigger` processor, then right-click `Trigger` and choose **Run once**. Preview the target table to validate that all ~30 rows reached the target. You can experiment by running the flow several times, perhaps changing the number of users fetched (`limit=30`) in the first HTTP call.
